@@ -129,7 +129,8 @@ dmypy.json
 .pyre/
 
 # IDEA pycharm config folder
-idea/
+.idea/
 
-# Resources folder
+# project folders not to track
 res/
+temp/
