@@ -128,5 +128,8 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# IDEA pycharm config folder
+idea/
+
 # Resources folder
 res/
