@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow_datasets as tfds
 import pandas as pd
+import random
 
 ########################################################################################################################
 
@@ -22,7 +23,15 @@ def distort_images(img_list):
         plt.show()
 
 
-def crop_images():
+def crop_img(img, size=(100, 100)):
+    start_x = random.randrange(0, img.shape[0]-size[0])
+    end_x = start_x + size[0]
+    start_y = random.randrange(0, img.shape[1]-size[1])
+    end_y = start_y + size[1]
+    return img[start_x:end_x, start_y:end_y]
+
+
+def is_greyscale(img):
     pass
 
 
@@ -30,9 +39,10 @@ def import_images(directory=IMG_DIR, force_calc=False):
     """
     Import images from a directory and form an array.
 
-    @param directory: The directory to import the images from
-    @param force_calc: Re-build the array even if a numpy save file exists
-    @return: An array (numpy.ndarray) of all the images
+    @param directory:   The directory to import the images from
+    @param force_calc:  If true, the array is re-built even if a numpy save file exists. Useful if pre-processing is
+                        changed
+    @return:            (numpy.ndarray) An array of all the images
     """
 
     img_np_arr = None
@@ -48,7 +58,9 @@ def import_images(directory=IMG_DIR, force_calc=False):
 
         # for img in all_imgs:
         for img in tqdm(all_imgs, desc="Importing Images", file=sys.stdout):
-            img_arr.append(cv2.imread(os.path.join(directory, img)))
+            raw_img = cv2.imread(os.path.join(directory, img))
+            proc_img = crop_img(raw_img)
+            img_arr.append(proc_img)
 
         img_np_arr = np.asarray(img_arr)
 
@@ -58,8 +70,8 @@ def import_images(directory=IMG_DIR, force_calc=False):
 
 
 if __name__ == '__main__':
-    imgs = import_images()
+    imgs = import_images(force_calc=True)
 
     print(type(imgs))
 
-    distort_images(imgs)
+    # distort_images(imgs)
