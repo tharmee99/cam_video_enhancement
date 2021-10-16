@@ -9,7 +9,7 @@ from tensorflow.keras import layers
 import matplotlib.pyplot as plt
 import numpy as np
 import random
-
+from sklearn.model_selection import train_test_split
 
 ########################################################################################################################
 
@@ -19,18 +19,18 @@ TMP_DIR = "temp"
 
 ########################################################################################################################
 
-def build_X(save_array=True):
-    imgs = import_images()
+def build_data(save_array=True):
+    Y = import_images()
     X = []
 
     print("Building X array...")
-    for img in imgs:
+    for img in Y:
         X.append(distort_img(img))
     print("...done\n")
 
     #TODO: Save/read array to temp with validation
 
-    return np.asarray(X)
+    return np.asarray(X), Y
 
 
 def distort_img(img, noise_type="GAUSSIAN", noise_params=None):
@@ -110,13 +110,30 @@ def import_images(directory=IMG_DIR, force_calc=False):
 
 
 if __name__ == '__main__':
-    X = build_X()
+    X, Y = build_data()
+
+    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.3)
 
     model = keras.Sequential(
         [
             layers.InputLayer(input_shape=X[0].shape),
-            layers.Conv3D(3, 3, activation='relu')
+            layers.Conv2D(3, 3, activation='relu'),
+            layers.MaxPool2D(),
+            layers.Conv2D(3, 3, activation='relu'),
+            layers.MaxPool2D(),
+            layers.Conv2D(3, 3, activation='relu'),
+            layers.MaxPool2D(),
+            layers.Dense(X.shape[0]*X.shape[1]*X.shape[2])
         ]
     )
+
+    model.compile(loss='mean_squared_error', metrics=['accuracy'], optimizer='adam')
+
+    model.fit(X_train, y_train,
+             epochs=7,
+             shuffle=True,
+             verbose=1)
+
+    # plt.imshow()
 
     pass
