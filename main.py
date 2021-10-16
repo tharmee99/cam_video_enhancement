@@ -21,6 +21,7 @@ def distort_images(img_list):
     for img in img_list:
         plt.imshow(img)
         plt.show()
+        pass
 
 
 def crop_img(img, size=(100, 100)):
@@ -32,7 +33,14 @@ def crop_img(img, size=(100, 100)):
 
 
 def is_greyscale(img):
-    pass
+    w = img.shape[0]
+    h = img.shape[1]
+    for i in range(w):
+        for j in range(h):
+            r, g, b = img[i, j]
+            if r != g != b:
+                return False
+    return True
 
 
 def import_images(directory=IMG_DIR, force_calc=False):
@@ -50,17 +58,19 @@ def import_images(directory=IMG_DIR, force_calc=False):
 
     # If np array save file exists just read that in, else build array by reading images
     if os.path.exists(os.path.join(TMP_DIR, file_name)) and not force_calc:
+        print("Importing images from npy file...")
         img_np_arr = np.load(os.path.join(TMP_DIR, file_name))
+        print("...done\n")
     else:
         all_imgs = os.listdir(directory)
 
         img_arr = []
 
-        # for img in all_imgs:
-        for img in tqdm(all_imgs, desc="Importing Images", file=sys.stdout):
-            raw_img = cv2.imread(os.path.join(directory, img))
-            proc_img = crop_img(raw_img)
-            img_arr.append(proc_img)
+        for img in tqdm(all_imgs, desc="Importing images", file=sys.stdout):
+            img_raw = cv2.imread(os.path.join(directory, img))
+            img_cropped = crop_img(img_raw)
+            if not is_greyscale(img_cropped):
+                img_arr.append(img_cropped)
 
         img_np_arr = np.asarray(img_arr)
 
@@ -72,6 +82,4 @@ def import_images(directory=IMG_DIR, force_calc=False):
 if __name__ == '__main__':
     imgs = import_images(force_calc=True)
 
-    print(type(imgs))
-
-    # distort_images(imgs)
+    distort_images(imgs)
