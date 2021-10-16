@@ -62,7 +62,10 @@ def import_images(directory=IMG_DIR, force_calc=False):
         img_np_arr = np.load(os.path.join(TMP_DIR, file_name))
         print("...done\n")
     else:
-        all_imgs = os.listdir(directory)
+        if not os.path.isdir(directory):
+            raise Exception("No resource directory found at {}".format(directory))
+        else:
+            all_imgs = os.listdir(directory)
 
         img_arr = []
 
@@ -73,6 +76,9 @@ def import_images(directory=IMG_DIR, force_calc=False):
                 img_arr.append(img_cropped)
 
         img_np_arr = np.asarray(img_arr)
+
+        if not os.path.isdir(TMP_DIR):
+            os.mkdir(TMP_DIR, 0o666)
 
         np.save(os.path.join(TMP_DIR, file_name), img_np_arr)
 
