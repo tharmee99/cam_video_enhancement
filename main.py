@@ -15,18 +15,30 @@ import random
 IMG_DIR = os.path.join("res", "small")
 TMP_DIR = "temp"
 
+
 ########################################################################################################################
 
-def distort_img(img, save_images=False, noise_mean=0, noise_stddev=0.1):
-    img_blur = cv2.GaussianBlur(img, (7, 7), cv2.BORDER_DEFAULT)
-    # img_noise = img_blur + np.random.normal(noise_mean, noise_stddev, img_blur.shape)
-    return np.clip(img_blur, 0, 1)
+def build_X():
+    pass
+
+
+def distort_img(img, noise_type="GAUSSIAN", noise_params=None):
+    if noise_params is None:
+        noise_params = {"noise_mean": 0, "noise_stddev": 0.05}
+
+    img_blur = cv2.GaussianBlur(img, (3, 3), cv2.BORDER_DEFAULT)
+
+    if noise_type == "GAUSSIAN":
+        img_noise = img_blur + np.random.normal(noise_params["noise_mean"], noise_params["noise_stddev"], img_blur.shape)
+    elif noise_type == "UNIFORM":
+        img_noise = img_blur + np.random.uniform(noise_params["noise_min"], noise_params["noise_max"], img_blur.shape)
+    return np.clip(img_noise, 0, 1)
 
 
 def crop_img(img, size=(100, 100)):
-    start_x = random.randrange(0, img.shape[0]-size[0])
+    start_x = random.randrange(0, img.shape[0] - size[0])
     end_x = start_x + size[0]
-    start_y = random.randrange(0, img.shape[1]-size[1])
+    start_y = random.randrange(0, img.shape[1] - size[1])
     end_y = start_y + size[1]
     return img[start_x:end_x, start_y:end_y]
 
@@ -72,7 +84,7 @@ def import_images(directory=IMG_DIR, force_calc=False):
             img_raw = cv2.imread(os.path.join(directory, img))
             img_cropped = crop_img(img_raw)
             if not is_greyscale(img_cropped):
-                img_arr.append(img_cropped/255)
+                img_arr.append(img_cropped / 255)
 
         img_np_arr = np.asarray(img_arr)
 
@@ -85,9 +97,9 @@ def import_images(directory=IMG_DIR, force_calc=False):
 
 
 if __name__ == '__main__':
-    imgs = import_images(force_calc=True)
+    imgs = import_images(force_calc=False)
 
-    plt.imshow(imgs[0])
-    plt.show()
+    # plt.imshow(imgs[0])
+    # plt.show()
     plt.imshow(distort_img(imgs[0]))
     plt.show()
