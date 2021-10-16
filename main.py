@@ -4,11 +4,12 @@ from PIL import Image, ImageFilter
 import cv2
 from tqdm import tqdm
 import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
 import matplotlib.pyplot as plt
 import numpy as np
-import tensorflow_datasets as tfds
-import pandas as pd
 import random
+
 
 ########################################################################################################################
 
@@ -18,13 +19,25 @@ TMP_DIR = "temp"
 
 ########################################################################################################################
 
-def build_X():
-    pass
+def build_X(save_array=True):
+    imgs = import_images()
+    X = []
+
+    print("Building X array...")
+    for img in imgs:
+        X.append(distort_img(img))
+    print("...done\n")
+
+    #TODO: Save/read array to temp with validation
+
+    return np.asarray(X)
 
 
 def distort_img(img, noise_type="GAUSSIAN", noise_params=None):
     if noise_params is None:
         noise_params = {"noise_mean": 0, "noise_stddev": 0.05}
+
+    #TODO: Validate noise_type and noise_params
 
     img_blur = cv2.GaussianBlur(img, (3, 3), cv2.BORDER_DEFAULT)
 
@@ -97,9 +110,13 @@ def import_images(directory=IMG_DIR, force_calc=False):
 
 
 if __name__ == '__main__':
-    imgs = import_images(force_calc=False)
+    X = build_X()
 
-    # plt.imshow(imgs[0])
-    # plt.show()
-    plt.imshow(distort_img(imgs[0]))
-    plt.show()
+    model = keras.Sequential(
+        [
+            layers.InputLayer(input_shape=X[0].shape),
+            layers.Conv3D(3, 3, activation='relu')
+        ]
+    )
+
+    pass
