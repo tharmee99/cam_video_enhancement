@@ -131,6 +131,9 @@ dmypy.json
 # IDEA pycharm config folder
 .idea/
 
+# VSCode config folder
+.vscode/
+
 # project folders not to track
 res/
 temp/
